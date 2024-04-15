@@ -15,25 +15,26 @@ public class RecipeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+//    @NotBlank
     private String title;
 
-    @NotBlank
+//    @NotBlank
     private String description;
-    @NotBlank
+//    @NotBlank
     private String time;
+    private Integer numberSaved;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "recipe_img_urls", joinColumns = @JoinColumn(name = "recipe_id"))
-    @Column(name = "img_url")
-    private List<String> imgUrls;
+//    @ElementCollection(fetch = FetchType.EAGER)
+//    @CollectionTable(name = "recipe_img_urls", joinColumns = @JoinColumn(name = "recipe_id"))
+//    @Column(name = "img_url")
+//    private List<String> imgUrls;
+
+    @OneToMany(fetch= FetchType.EAGER, mappedBy = "recipe", cascade = CascadeType.ALL)
+    private List<Image> images;
 
     @OneToMany(fetch= FetchType.EAGER, mappedBy = "recipe", cascade = CascadeType.ALL)
 //    @NotBlank
     private List<IngredientEntity> ingredients;
-
-//    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
-//    private List<StepEntity> steps;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "recipe_steps", joinColumns = @JoinColumn(name = "recipe_id"))
