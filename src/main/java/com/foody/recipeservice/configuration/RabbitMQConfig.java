@@ -11,57 +11,120 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
     public static final String RECIPE_EXCHANGE = "recipe_exchange";
-
-    public static final String SEARCH_QUEUE = "search_recipe_queue";
-    public static final String DELETE_QUEUE = "delete_recipe_queue";
-    public static final String SEARCH_ROUTING_KEY = "search_recipe_routingKey";
-    public static final String DELETE_RECIPE_ROUTING_KEY = "delete_recipe_routingKey";
+    public static final String RECIPE_FANOUT_EXCHANGE = "recipe_fanout_exchange";
+    public static final String RECIPE_QUEUE_IMG = "recipe_queue_img";
+    public static final String IMG_QUEUE = "img_queue";
+    public static final String RECIPE_QUEUE_SEARCH = "recipe_queue_search";
+    public static final String RECIPE_ROUTING_KEY_CREATE_SEARCH = "recipe_routingKey_create_search";
+    public static final String RECIPE_ROUTING_KEY_CREATE_IMG = "recipe_routingKey_create_img";
+    public static final String RECIPE_ROUTING_KEY_UPDATE_SEARCH = "recipe_routingKey_update_search";
+    public static final String RECIPE_ROUTING_KEY_UPDATE_IMG = "recipe_routingKey_update_img";
+    //saved recipes
     public static final String SAVED_RECIPE_QUEUE = "savedRecipe_queue";
-    public static final String SAVED_RECIPE_ROUTING_KEY = "savedRecipe_routingKey";
 
-    // Define a TopicExchange
+    //fanout
+    public static final String FANOUT_IMG_QUEUE = "fanout_img_queue";
+    public static final String FANOUT_COMMENT_QUEUE = "fanout_comment_queue";
+    public static final String FANOUT_SEARCH_QUEUE = "fanout_search_queue";
+    public static final String FANOUT_SAVED_QUEUE = "fanout_saved_queue";
+
     @Bean
-    public TopicExchange exchange() {
-        return new TopicExchange(RECIPE_EXCHANGE);
+    public DirectExchange directExchange() {
+        return new DirectExchange(RECIPE_EXCHANGE);
+    }
+
+    // queues and bindings for when recipe is created and updated
+    @Bean
+    public Queue recipeQueueImg() {
+        return new Queue(RECIPE_QUEUE_IMG);
     }
 
     @Bean
-    public Queue search_queue() {
-        return new Queue(SEARCH_QUEUE);
-    }
-
-    // Create a binding between "search_recipe_queue" and the exchange with the routing key pattern "order.logs.customer.#"
-    @Bean
-    public Binding bindingCreateSearch(Queue search_queue, TopicExchange exchange) {
-        return BindingBuilder.bind(search_queue)
+    public Binding bindingRecipeQueueImgCreate(Queue recipeQueueImg, DirectExchange exchange) {
+        return BindingBuilder.bind(recipeQueueImg)
                 .to(exchange)
-                .with(SEARCH_ROUTING_KEY);
+                .with(RECIPE_ROUTING_KEY_CREATE_IMG);
     }
 
     @Bean
-    public Queue delete_queue() {
-        return new Queue(DELETE_QUEUE);
-    }
-
-    @Bean
-    public Binding bindingDeleteRecipe(Queue delete_queue, TopicExchange exchange) {
-        return BindingBuilder.bind(delete_queue)
+    public Binding bindingRecipeQueueImgUpdate(Queue recipeQueueImg, DirectExchange exchange) {
+        return BindingBuilder.bind(recipeQueueImg)
                 .to(exchange)
-                .with(DELETE_RECIPE_ROUTING_KEY);
+                .with(RECIPE_ROUTING_KEY_UPDATE_IMG);
+    }
+    @Bean
+    public Queue recipeQueueSearch() {
+        return new Queue(RECIPE_QUEUE_SEARCH);
     }
 
     @Bean
-    public Queue saved_recipe_queue() {
+    public Binding bindingRecipeQueueSearchCreate(Queue recipeQueueSearch, DirectExchange exchange) {
+        return BindingBuilder.bind(recipeQueueSearch)
+                .to(exchange)
+                .with(RECIPE_ROUTING_KEY_CREATE_SEARCH);
+    }
+
+    @Bean
+    public Binding bindingRecipeQueueSearchUpdate(Queue recipeQueueSearch, DirectExchange exchange) {
+        return BindingBuilder.bind(recipeQueueSearch)
+                .to(exchange)
+                .with(RECIPE_ROUTING_KEY_UPDATE_SEARCH);
+    }
+    // end queues and bindings for when recipe is created and updated
+
+    @Bean
+    public Queue imgQueue() {
+        return new Queue(IMG_QUEUE);
+    }
+
+    @Bean
+    public Queue savedRecipeQueue() {
         return new Queue(SAVED_RECIPE_QUEUE);
     }
-
     @Bean
-    public Binding bindingSavedRecipe(Queue delete_queue, TopicExchange exchange) {
-        return BindingBuilder.bind(delete_queue)
-                .to(exchange)
-                .with(SAVED_RECIPE_ROUTING_KEY);
+    public FanoutExchange fanoutExchange() {
+        return new FanoutExchange(RECIPE_FANOUT_EXCHANGE);
     }
 
+    @Bean
+    public Queue fanoutImg() {
+        return new Queue(FANOUT_IMG_QUEUE);
+    }
+    @Bean
+    public Queue fanoutSearch() {
+        return new Queue(FANOUT_SEARCH_QUEUE);
+    }
+    @Bean
+    public Queue fanoutComment() {
+        return new Queue(FANOUT_COMMENT_QUEUE);
+    }
+    @Bean
+    public Queue fanoutSaved() {
+        return new Queue(FANOUT_SAVED_QUEUE);
+    }
+
+    @Bean
+    public Binding bindingImgQueue(Queue fanoutImg, FanoutExchange exchange) {
+        return BindingBuilder.bind(fanoutImg)
+                .to(exchange);
+    }
+
+    @Bean
+    public Binding bindingSearchQueue(Queue fanoutSearch, FanoutExchange exchange) {
+        return BindingBuilder.bind(fanoutSearch)
+                .to(exchange);
+    }
+    @Bean
+    public Binding bindingCommentQueue(Queue fanoutComment, FanoutExchange exchange) {
+        return BindingBuilder.bind(fanoutComment)
+                .to(exchange);
+    }
+
+    @Bean
+    public Binding bindingSavedQueue(Queue fanoutSaved, FanoutExchange exchange) {
+        return BindingBuilder.bind(fanoutSaved)
+                .to(exchange);
+    }
     @Bean
     public MessageConverter converter() {
         return new Jackson2JsonMessageConverter();
@@ -73,5 +136,4 @@ public class RabbitMQConfig {
         rabbitTemplate.setMessageConverter(converter());
         return rabbitTemplate;
     }
-
 }

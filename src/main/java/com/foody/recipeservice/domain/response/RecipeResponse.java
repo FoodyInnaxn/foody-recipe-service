@@ -1,6 +1,5 @@
 package com.foody.recipeservice.domain.response;
 
-import com.foody.recipeservice.domain.ImageModel;
 import com.foody.recipeservice.domain.request.IngredientRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +15,7 @@ public class RecipeResponse {
     private String description;
     private String time;
     private Integer numberSaved;
-    private List<ImageModel> imgUrls;
+    private List<String> imgUrls;
     private List<IngredientRequest> ingredients;
     private List<String> steps;
 }

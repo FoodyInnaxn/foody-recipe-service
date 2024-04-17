@@ -1,4 +1,5 @@
-package com.foody.recipeservice.domain.comsumer;
+package com.foody.recipeservice.business.rabbit.event;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,7 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SavedRecipeCreatedEvent {
+public class RecipeCreatedSearchEvent {
     private Long recipeId;
-    private Integer numberSaved;
+    private String title;
+    private String description;
+
 }
