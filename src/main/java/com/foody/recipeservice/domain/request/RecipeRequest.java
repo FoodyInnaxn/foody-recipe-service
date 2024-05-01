@@ -13,6 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 public class RecipeRequest {
     @NotBlank
+    private Long userId;
+    @NotBlank
     private String title;
     @NotBlank
     private String description;

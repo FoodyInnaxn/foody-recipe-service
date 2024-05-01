@@ -13,6 +13,7 @@ public class RecipeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private Long userId;
     private String title;
     private String description;
     private String time;

@@ -15,26 +15,27 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/recipe")
+@RequestMapping("/recipe")
 @RequiredArgsConstructor
 public class RecipeController {
 
     private final RecipeService recipeService;
-
 
 //    @PostMapping
 //    @ResponseStatus(HttpStatus.CREATED)
 //    public CreateRecipeResponse createRecipe(@RequestBody RecipeRequest request) {
 //        return recipeService.createRecipe(request);
 //    }
-    @PostMapping
+
+    @PostMapping("/{id}/operations/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public CreateRecipeResponse createRecipe(@RequestPart(value = "title") String title, @RequestPart(value = "description") String description,
+    public CreateRecipeResponse createRecipe(@PathVariable("id") Long userId, @RequestPart(value = "title") String title, @RequestPart(value = "description") String description,
                                              @RequestPart(value = "time") String time,
                                              @RequestPart(value = "ingredients") List<IngredientRequest> ingredientRequest,
                                              @RequestPart(value = "steps") List<String> steps,
                                              @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles) {
         RecipeRequest request = new RecipeRequest();
+        request.setUserId(userId);
         request.setTitle(title);
         request.setDescription(description);
         request.setTime(time);
@@ -52,13 +53,11 @@ public class RecipeController {
 //        return recipeService.createRecipe(request);
 //    }
 
-
-
-    @GetMapping("/{id}")
+    @GetMapping("/view/{id}")
     public RecipeResponse getRecipeById(@PathVariable Long id) {
         return recipeService.getRecipeById(id);
     }
-    @GetMapping()
+    @GetMapping("/view")
     public List<RecipeResponse> getRecipes(@RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "10") int size) {
         List<RecipeResponse> recipeResponses = recipeService.getRecipes(page, size);
@@ -74,26 +73,29 @@ public class RecipeController {
 //        return ResponseEntity.noContent().build();
 //    }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Void> updateRecipe(@PathVariable Long id, @RequestPart(value = "title") String title, @RequestPart(value = "description") String description,
+    @PutMapping("/{id}/operations/update/{recipeId}")
+    public ResponseEntity<Void> updateRecipe(@PathVariable("id") Long userId,
+                                             @PathVariable("recipeId") Long recipeId, @RequestPart(value = "title") String title, @RequestPart(value = "description") String description,
                                              @RequestPart(value = "time") String time,
                                              @RequestPart(value = "ingredients") List<IngredientRequest> ingredientRequest,
                                              @RequestPart(value = "steps") List<String> steps,
                                              @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles) {
         RecipeRequest request = new RecipeRequest();
+        request.setUserId(userId);
         request.setTitle(title);
         request.setDescription(description);
         request.setTime(time);
         request.setIngredients(ingredientRequest);
         request.setSteps(steps);
         request.setImages(imageFiles);
-        recipeService.updateRecipe(id, request);
+        recipeService.updateRecipe(recipeId, request);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("delete/{id}")
-    public ResponseEntity<RecipeService> deletePatient(@PathVariable Long id){
-        recipeService.deleteRecipe(id);
+    @DeleteMapping("/{id}/operations/delete/{recipeId}")
+    public ResponseEntity<RecipeService> deletePatient(@PathVariable("id") Long userId,
+                                                       @PathVariable("recipeId") Long recipeId){
+        recipeService.deleteRecipe(recipeId);
         return ResponseEntity.noContent().build();
     }
 }

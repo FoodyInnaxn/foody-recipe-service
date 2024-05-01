@@ -34,6 +34,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public CreateRecipeResponse createRecipe(RecipeRequest request) {
         RecipeEntity recipeEntity = new RecipeEntity();
+        recipeEntity.setUserId(recipeEntity.getUserId());
         recipeEntity.setTitle(request.getTitle());
         recipeEntity.setDescription(request.getDescription());
         recipeEntity.setNumberSaved(0);
@@ -140,6 +141,7 @@ public class RecipeServiceImpl implements RecipeService {
                 .orElseThrow(() -> new RecipeNotFoundException());
 
         recipeEntity.setTitle(request.getTitle());
+//        recipeEntity.setUserId(recipeEntity.getUserId());
         recipeEntity.setDescription(request.getDescription());
         recipeEntity.setTime(request.getTime());
         List<IngredientEntity> updatedIngredients = mapToIngredientEntities(recipeEntity, request.getIngredients());
