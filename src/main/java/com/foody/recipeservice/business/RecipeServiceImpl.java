@@ -1,26 +1,25 @@
 package com.foody.recipeservice.business;
 
-import com.foody.recipeservice.domain.ImageModel;
-import com.foody.recipeservice.domain.RecipeCreatedEvent;
-import com.foody.recipeservice.domain.RecipeCreatedEventPublisher;
-import com.foody.recipeservice.domain.RecipeDeletedEventPublisher;
+import com.foody.recipeservice.business.rabbit.event.ImageEvent;
+import com.foody.recipeservice.business.rabbit.event.RecipeImgEvent;
+import com.foody.recipeservice.business.rabbit.event.SavedRecipeCreatedEvent;
+import com.foody.recipeservice.configuration.RabbitMQConfig;
+import com.foody.recipeservice.business.rabbit.event.RecipeCreatedSearchEvent;
+import com.foody.recipeservice.business.rabbit.RecipeEventPublisher;
 import com.foody.recipeservice.domain.request.IngredientRequest;
 import com.foody.recipeservice.domain.request.RecipeRequest;
 import com.foody.recipeservice.domain.response.CreateRecipeResponse;
 import com.foody.recipeservice.domain.response.RecipeResponse;
-import com.foody.recipeservice.persistence.ImageRepository;
 import com.foody.recipeservice.persistence.RecipeRepository;
-import com.foody.recipeservice.persistence.entity.Image;
 import com.foody.recipeservice.persistence.entity.IngredientEntity;
 import com.foody.recipeservice.persistence.entity.RecipeEntity;
 import com.foody.recipeservice.business.exceptions.RecipeNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.function.Function;
@@ -30,39 +29,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RecipeServiceImpl implements RecipeService {
     private final RecipeRepository recipeRepository;
-    private final ImageRepository imageRepository;
-    private final RecipeCreatedEventPublisher eventPublisher;
-    private final RecipeDeletedEventPublisher recipeDeletedEventPublisher;
-    @Autowired
-    private CloudinaryService cloudinaryService;
+    private final RecipeEventPublisher eventPublisher;
 
     @Override
     public CreateRecipeResponse createRecipe(RecipeRequest request) {
         RecipeEntity recipeEntity = new RecipeEntity();
+        recipeEntity.setUserId(recipeEntity.getUserId());
         recipeEntity.setTitle(request.getTitle());
         recipeEntity.setDescription(request.getDescription());
         recipeEntity.setNumberSaved(0);
-
-        List<Image> images = new ArrayList<>();
-        try {
-            if (request.getImages() != null) {
-                for (MultipartFile file : request.getImages()) {
-                    if (!file.isEmpty()) {
-                        Image img = cloudinaryService.uploadFile(file, "recipes_1", recipeEntity);
-                        images.add(img);
-                    }
-                }
-            }
-        }
-        catch(Exception e){
-            e.printStackTrace();
-            return null;
-        }
-
-        recipeEntity.setImages(images);
-
         recipeEntity.setTime(request.getTime());
-
         List<IngredientEntity> ingredients = request.getIngredients().stream()
                 .map(ingredientRequest -> {
                     IngredientEntity ingredientEntity = new IngredientEntity();
@@ -78,16 +54,24 @@ public class RecipeServiceImpl implements RecipeService {
 
         RecipeEntity savedRecipe = recipeRepository.save(recipeEntity);
 
-        RecipeResponse res = new RecipeResponse();
-        res.setId(savedRecipe.getId());
+        if (request.getImages() != null && !request.getImages().isEmpty()) {
+            // sending to image server
+            RecipeImgEvent imgEvent = new RecipeImgEvent();
+            imgEvent.setRecipeId(savedRecipe.getId());
+            imgEvent.setFolderName("recipes_1");
+            imgEvent.setImages(request.getImages());
+            eventPublisher.publishRecipeCreatedImgEvent(imgEvent);
+            System.out.println("hey sending to img " + imgEvent);
+        }
 
-        RecipeCreatedEvent event = new RecipeCreatedEvent();
-        event.setRecipeId(savedRecipe.getId());
-        event.setTitle(savedRecipe.getTitle());
-        event.setDescription(savedRecipe.getDescription());
+        // sending info to the search queue
+        RecipeCreatedSearchEvent searchEvent = new RecipeCreatedSearchEvent();
+        searchEvent.setRecipeId(savedRecipe.getId());
+        searchEvent.setTitle(savedRecipe.getTitle());
+        searchEvent.setDescription(savedRecipe.getDescription());
+        eventPublisher.publishRecipeCreatedSearchEvent(searchEvent);
+        System.out.println("hey sending to search " + searchEvent);
 
-        eventPublisher.publishRecipeCreatedEvent(event);
-        System.out.println("hey " + event);
 
         return CreateRecipeResponse.builder()
                 .id(savedRecipe.getId())
@@ -106,10 +90,7 @@ public class RecipeServiceImpl implements RecipeService {
             response.setTime(recipeEntity.getTime());
             response.setDescription(recipeEntity.getDescription());
             response.setNumberSaved(recipeEntity.getNumberSaved());
-            List<ImageModel> imageModels = recipeEntity.getImages().stream()
-                    .map(image -> new ImageModel(image.getUrl()))
-                    .toList();
-            response.setImgUrls(imageModels);
+            response.setImgUrls(recipeEntity.getImgUrls());
             List<IngredientRequest> ingredientRequests = recipeEntity.getIngredients().stream()
                     .map(ingredientEntity -> new IngredientRequest(ingredientEntity.getName(), ingredientEntity.getQuantity()))
                     .collect(Collectors.toList());
@@ -145,10 +126,7 @@ public class RecipeServiceImpl implements RecipeService {
         response.setDescription(recipeEntity.getDescription());
         response.setTime(recipeEntity.getTime());
         response.setNumberSaved(recipeEntity.getNumberSaved());
-        List<ImageModel> imageModels = recipeEntity.getImages().stream()
-                .map(image -> new ImageModel(image.getUrl()))
-                .toList();
-        response.setImgUrls(imageModels);
+        response.setImgUrls(recipeEntity.getImgUrls());
         List<IngredientRequest> ingredientRequests = recipeEntity.getIngredients().stream()
                 .map(ingredientEntity -> new IngredientRequest(ingredientEntity.getName(), ingredientEntity.getQuantity()))
                 .collect(Collectors.toList());
@@ -162,40 +140,38 @@ public class RecipeServiceImpl implements RecipeService {
         RecipeEntity recipeEntity = recipeRepository.findById(id)
                 .orElseThrow(() -> new RecipeNotFoundException());
 
-        List<Image> imgs = imageRepository.findByRecipeId(recipeEntity.getId());
-        cloudinaryService.deleteImages(imgs);
-
         recipeEntity.setTitle(request.getTitle());
+//        recipeEntity.setUserId(recipeEntity.getUserId());
         recipeEntity.setDescription(request.getDescription());
         recipeEntity.setTime(request.getTime());
+        List<IngredientEntity> updatedIngredients = mapToIngredientEntities(recipeEntity, request.getIngredients());
+        recipeEntity.setIngredients(updatedIngredients);
+        recipeEntity.setSteps(request.getSteps());
 
         if (request.getImages() != null && !request.getImages().isEmpty()) {
-            List<Image> images = new ArrayList<>();
             try {
-                if (request.getImages() != null) {
-                    for (MultipartFile file : request.getImages()) {
-                        if (!file.isEmpty()) {
-                            Image img = cloudinaryService.uploadFile(file, "recipe_1", recipeEntity);
-                            images.add(img);
-                        }
-                    }
-                }
+                // sending to image server
+                RecipeImgEvent imgEvent = new RecipeImgEvent();
+                imgEvent.setRecipeId(id);
+                imgEvent.setFolderName("recipes_1");
+                imgEvent.setImages(request.getImages());
+                eventPublisher.publishRecipeUpdatedImgEvent(imgEvent);
+                System.out.println("hey sending to img to update " + imgEvent);
             }
             catch(Exception e){
                 e.printStackTrace();
             }
-
-            recipeEntity.setImages(images);
-            System.out.println(recipeEntity);
-
         }
 
-        List<IngredientEntity> updatedIngredients = mapToIngredientEntities(recipeEntity, request.getIngredients());
-        recipeEntity.setIngredients(updatedIngredients);
-
-        recipeEntity.setSteps(request.getSteps());
-
         recipeRepository.save(recipeEntity);
+
+        // sending info to the search queue
+        RecipeCreatedSearchEvent searchEvent = new RecipeCreatedSearchEvent();
+        searchEvent.setRecipeId(id);
+        searchEvent.setTitle(request.getTitle());
+        searchEvent.setDescription(request.getDescription());
+        eventPublisher.publishRecipeUpdatedSearchEvent(searchEvent);
+        System.out.println("hey sending to search " + searchEvent);
     }
     private List<IngredientEntity> mapToIngredientEntities(RecipeEntity recipeEntity, List<IngredientRequest> ingredientRequests) {
         // get the existing ingredients associated with the recipe
@@ -231,11 +207,53 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
-    public void deleteRecipe(long id) {
-        List<Image> imgs = imageRepository.findByRecipeId(id);
-        cloudinaryService.deleteImages(imgs);
+    public void deleteRecipe(Long id) {
         this.recipeRepository.deleteById(id);
-        recipeDeletedEventPublisher.publishRecipeDeletedEvent(id);
+        eventPublisher.publishDelete(id);
         System.out.println("hey delete recipe" + id);
     }
+
+    @Override
+    @RabbitListener(queues = RabbitMQConfig.IMG_QUEUE)
+    public void handleImages(ImageEvent imageEvent) {
+        RecipeEntity recipeEntity = recipeRepository.findById(imageEvent.getRecipeId())
+                .orElseThrow(() -> new RecipeNotFoundException());
+
+        if (recipeEntity.getImgUrls().isEmpty()) {
+            try {
+                recipeEntity.setImgUrls(imageEvent.getImagesUrls());
+                recipeRepository.save(recipeEntity);
+            } catch (Exception e) {
+                System.out.println("Error saving images: " + e.getMessage());
+            }
+        }
+
+        System.out.println("Saved recipe " + imageEvent.getRecipeId() + " with images.");
+    }
+
+    @Override
+    @RabbitListener(queues = RabbitMQConfig.SAVED_RECIPE_QUEUE)
+    public void receiveSavedRecipeEvent(SavedRecipeCreatedEvent savedRecipeCreatedEvent) {
+        Optional<RecipeEntity> recipeOptional = recipeRepository.findById(savedRecipeCreatedEvent.getRecipeId());
+        if (recipeOptional.isEmpty()) {
+            throw new RecipeNotFoundException();
+        }
+        RecipeEntity recipeEntity = recipeOptional.get();
+
+        if (savedRecipeCreatedEvent.getNumberSaved() == 1 ){
+            recipeEntity.setNumberSaved(recipeEntity.getNumberSaved() + 1);
+            recipeRepository.save(recipeEntity);
+        }
+        else if(savedRecipeCreatedEvent.getNumberSaved() == -1 ){
+            recipeEntity.setNumberSaved(recipeEntity.getNumberSaved() - 1);
+            recipeRepository.save(recipeEntity);
+        }
+        else {
+            System.out.println("NESHTOSTANA" );
+            throw new RecipeNotFoundException();
+        }
+
+        System.out.println("Received saved recipe event: " + savedRecipeCreatedEvent.getNumberSaved() + savedRecipeCreatedEvent.getRecipeId());
+    }
+
 }
