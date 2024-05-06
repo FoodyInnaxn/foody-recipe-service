@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fd-recipe-service-deployment
+spec:
+  replicas: 1 # Number of replicas that will be created for this deployment
+  selector:
+    matchLabels:
+      app: fd-recipe-service # fd-recipe-service-deployment
+  template:
+    metadata:
+      labels:
+        app: fd-recipe-service-deployment
+    spec:
+      containers:
+        - name: fd-recipe-service-deployment
+#          image: milanspiridonov/jc-frontend:testing-latest
+          image: springboot-k8s-example:1.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081 # The port that the container is running on in the cluster
+          env:
+            - name: HOST_URL
+              value: jc-gateway.s-a-rb04-grp3.svc.cluster.local
+            - name: ROOM_API_PORT
+              value: "80"
+            - name: WS_URL
+              value: 10.24.16.5
