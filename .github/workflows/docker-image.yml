@@ -31,9 +31,9 @@ jobs:
           push: true
           # List of tags
           tags: innaxn/foody-recipe-service
-  redeploy:
-      runs-on: self-hosted
-      needs: build
-      steps:
-      - uses: actions/checkout@v4
-      - run: kubectl apply -f recipe-k8s.yaml
+  # redeploy:
+  #     runs-on: self-hosted
+  #     needs: build
+  #     steps:
+  #     - uses: actions/checkout@v4
+  #     - run: kubectl apply -f recipe-k8s.yaml
