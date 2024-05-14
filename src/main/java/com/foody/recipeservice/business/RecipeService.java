@@ -5,13 +5,15 @@ import com.foody.recipeservice.business.rabbit.event.SavedRecipeCreatedEvent;
 import com.foody.recipeservice.domain.request.RecipeRequest;
 import com.foody.recipeservice.domain.response.CreateRecipeResponse;
 import com.foody.recipeservice.domain.response.RecipeResponse;
+import com.foody.recipeservice.domain.response.RecipesResponse;
 
 import java.util.List;
 
 public interface RecipeService {
     CreateRecipeResponse createRecipe(RecipeRequest request);
     RecipeResponse getRecipeById(Long id);
-    List<RecipeResponse> getRecipes(int page, int size);
+    RecipesResponse getRecipes(int page, int size);
+    RecipesResponse getRecipesByUserId(Long id, int page, int size);
     void updateRecipe(Long id, RecipeRequest request);
     void deleteRecipe(Long id);
     void handleImages(ImageEvent imageEvent);

@@ -10,6 +10,7 @@ import com.foody.recipeservice.domain.request.IngredientRequest;
 import com.foody.recipeservice.domain.request.RecipeRequest;
 import com.foody.recipeservice.domain.response.CreateRecipeResponse;
 import com.foody.recipeservice.domain.response.RecipeResponse;
+import com.foody.recipeservice.domain.response.RecipesResponse;
 import com.foody.recipeservice.persistence.RecipeRepository;
 import com.foody.recipeservice.persistence.entity.IngredientEntity;
 import com.foody.recipeservice.persistence.entity.RecipeEntity;
@@ -34,7 +35,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public CreateRecipeResponse createRecipe(RecipeRequest request) {
         RecipeEntity recipeEntity = new RecipeEntity();
-        recipeEntity.setUserId(recipeEntity.getUserId());
+        recipeEntity.setUserId(request.getUserId());
         recipeEntity.setTitle(request.getTitle());
         recipeEntity.setDescription(request.getDescription());
         recipeEntity.setNumberSaved(0);
@@ -87,6 +88,7 @@ public class RecipeServiceImpl implements RecipeService {
             RecipeResponse response = new RecipeResponse();
             response.setId(recipeEntity.getId());
             response.setTitle(recipeEntity.getTitle());
+            response.setUserId(recipeEntity.getUserId());
             response.setTime(recipeEntity.getTime());
             response.setDescription(recipeEntity.getDescription());
             response.setNumberSaved(recipeEntity.getNumberSaved());
@@ -104,7 +106,7 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
-    public List<RecipeResponse> getRecipes(int page, int size) {
+    public RecipesResponse getRecipes(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<RecipeEntity> recipePage = recipeRepository.findAll(pageable);
 
@@ -116,7 +118,27 @@ public class RecipeServiceImpl implements RecipeService {
             throw new RecipeNotFoundException();
         }
 
-        return recipeResponses;
+        return new RecipesResponse(recipeResponses, recipePage.getTotalPages());
+    }
+
+    @Override
+    public RecipesResponse getRecipesByUserId(Long id, int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RecipeEntity> recipePage = recipeRepository.findByUserId(id, pageable);
+
+        if (recipePage.isEmpty()) {
+            throw new RecipeNotFoundException();
+        }
+
+        List<RecipeResponse> recipeResponses = recipePage.getContent().stream()
+                .map(this::mapToRecipeResponse)
+                .collect(Collectors.toList());
+
+        if (recipeResponses.isEmpty()) {
+            throw new RecipeNotFoundException();
+        }
+
+        return new RecipesResponse(recipeResponses, recipePage.getTotalPages());
     }
 
     private RecipeResponse mapToRecipeResponse(RecipeEntity recipeEntity) {
@@ -125,6 +147,7 @@ public class RecipeServiceImpl implements RecipeService {
         response.setTitle(recipeEntity.getTitle());
         response.setDescription(recipeEntity.getDescription());
         response.setTime(recipeEntity.getTime());
+        response.setUserId(recipeEntity.getUserId());
         response.setNumberSaved(recipeEntity.getNumberSaved());
         response.setImgUrls(recipeEntity.getImgUrls());
         List<IngredientRequest> ingredientRequests = recipeEntity.getIngredients().stream()
