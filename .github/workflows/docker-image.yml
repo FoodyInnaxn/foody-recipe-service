@@ -36,4 +36,4 @@ jobs:
       needs: build
       steps:
       - uses: actions/checkout@v4
-      - run: kubectl apply -f recipe-k8s.yaml
+      - run: kubectl apply -f ./k8s/.

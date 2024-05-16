@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: recipe-service
+  name: recipe-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: recipe-service
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/foody-default: "true"
+        io.kompose.service: recipe-service
+    spec:
+      containers:
+        - env:
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://discovery-service:8761/eureka
+            - name: POSTGRES_PASSWORD
+              value: admin
+            - name: POSTGRES_URL
+              value: jdbc:postgresql://recipe-db:5432/recipe-db?enabledTLSProtocols=TLSv1.2
+            - name: POSTGRES_USER
+              value: admin
+            - name: SPRING_RABBITMQ_HOST
+              value: rabbitMQ
+          image: innaxn/foody-recipe-service:latest
+          name: recipe-microservice
+          ports:
+            - containerPort: 8081
+              hostPort: 8081
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
+status: {}
