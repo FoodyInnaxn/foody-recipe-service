@@ -15,5 +15,4 @@ spec:
       targetPort: 8081
   selector:
     io.kompose.service: recipe-service
-status:
-  loadBalancer: {}
+  type: ClusterIP
