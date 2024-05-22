@@ -48,11 +48,5 @@ jobs:
     runs-on: self-hosted
     needs: redeploy
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4.1.3
-        with:
-          fetch-depth: 0
-      - name: Execute `POST /recipe` tests
-        uses: artilleryio/action-cli@v1.1.1
-        with:
-          command: run loadtests/tests.yml --record --key ${{secrets.ARTILLERY_KEY}}
+    - name: Load Test
+      run: artillery run loadtests/tests.yml --record --key ${{ secrets.ARTILLERY }}
