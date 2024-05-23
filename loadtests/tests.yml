@@ -1,5 +1,5 @@
 config:
-  target: http://recipe-service:8081
+  target: 10.1.243.203:8081
 #  "recipe-service.default.svc.cluster.local"
   phases:
     - name: "Warm up service"
