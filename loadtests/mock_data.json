@@ -1,82 +1,42 @@
 [
   {
-    "userId": 1,
-    "title": "Spaghetti Carbonara",
-    "description": "A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.",
-    "time": "30 minutes",
-    "ingredients": [{"name":"spaghetti","quantity":"200g"},{"name":"eggs","quantity":"2"},{"name":"cheese","quantity":"50g"},{"name":"pancetta","quantity":"100g"},{"name":"pepper","quantity":"to taste"}],
-    "steps": ["Boil pasta","Cook pancetta","Mix eggs and cheese","Combine all ingredients"]
-  },
-  {
     "userId": 2,
-    "title": "Chicken Curry",
-    "description": "A spicy and flavorful chicken curry.",
-    "time": "45 minutes",
-    "ingredients": [{"name":"chicken","quantity":"500g"},{"name":"curry powder","quantity":"2 tbsp"},{"name":"coconut milk","quantity":"400ml"},{"name":"onions","quantity":"2"},{"name":"garlic","quantity":"3 cloves"}],
-    "steps": ["Cook onions and garlic","Add chicken and curry powder","Pour in coconut milk","Simmer until chicken is cooked"]
+    "title": "Chicken Alfredo",
+    "description": "A creamy pasta dish made with chicken, heavy cream, Parmesan cheese, and garlic.",
+    "time": "40 minutes",
+    "ingredients": "[{\"name\":\"fettuccine\",\"quantity\":\"250g\"},{\"name\":\"chicken breast\",\"quantity\":\"200g\"},{\"name\":\"heavy cream\",\"quantity\":\"200ml\"},{\"name\":\"Parmesan cheese\",\"quantity\":\"50g\"},{\"name\":\"garlic\",\"quantity\":\"2 cloves\"},{\"name\":\"butter\",\"quantity\":\"2 tbsp\"}]",
+    "steps": "[\"Cook pasta\",\"Cook chicken\",\"Prepare Alfredo sauce\",\"Combine pasta and sauce\"]"
   },
   {
     "userId": 3,
-    "title": "Vegetable Stir Fry",
-    "description": "A quick and healthy vegetable stir fry.",
-    "time": "20 minutes",
-    "ingredients": [{"name":"broccoli","quantity":"1 head"},{"name":"carrots","quantity":"2"},{"name":"bell peppers","quantity":"2"},{"name":"soy sauce","quantity":"3 tbsp"},{"name":"ginger","quantity":"1 inch"}],
-    "steps": ["Chop vegetables","Stir fry vegetables with ginger","Add soy sauce","Serve hot"]
+    "title": "Beef Stroganoff",
+    "description": "A Russian dish of sautéed pieces of beef served in a sauce with smetana (sour cream).",
+    "time": "45 minutes",
+    "ingredients": "[{\"name\":\"beef\",\"quantity\":\"300g\"},{\"name\":\"onion\",\"quantity\":\"1\"},{\"name\":\"mushrooms\",\"quantity\":\"150g\"},{\"name\":\"sour cream\",\"quantity\":\"100g\"},{\"name\":\"beef broth\",\"quantity\":\"200ml\"},{\"name\":\"flour\",\"quantity\":\"2 tbsp\"}]",
+    "steps": "[\"Cook beef\",\"Sauté onions and mushrooms\",\"Make sauce\",\"Combine all ingredients\"]"
   },
   {
     "userId": 4,
-    "title": "Beef Stew",
-    "description": "A hearty and comforting beef stew.",
-    "time": "2 hours",
-    "ingredients": [{"name":"beef","quantity":"1kg"},{"name":"potatoes","quantity":"4"},{"name":"carrots","quantity":"3"},{"name":"onions","quantity":"2"},{"name":"beef broth","quantity":"1L"}],
-    "steps": ["Brown beef","Add vegetables","Pour in beef broth","Simmer until tender"]
+    "title": "Margherita Pizza",
+    "description": "A simple pizza topped with fresh tomatoes, mozzarella cheese, and basil.",
+    "time": "1 hour",
+    "ingredients": "[{\"name\":\"pizza dough\",\"quantity\":\"1\"},{\"name\":\"tomato sauce\",\"quantity\":\"100g\"},{\"name\":\"mozzarella\",\"quantity\":\"150g\"},{\"name\":\"fresh basil\",\"quantity\":\"a few leaves\"},{\"name\":\"olive oil\",\"quantity\":\"2 tbsp\"}]",
+    "steps": "[\"Prepare dough\",\"Spread tomato sauce\",\"Add mozzarella\",\"Bake\",\"Garnish with basil\"]"
   },
   {
     "userId": 5,
-    "title": "Mushroom Risotto",
-    "description": "A creamy risotto made with mushrooms and Parmesan cheese.",
-    "time": "40 minutes",
-    "ingredients": [{"name":"rice","quantity":"300g"},{"name":"mushrooms","quantity":"200g"},{"name":"Parmesan cheese","quantity":"50g"},{"name":"onions","quantity":"1"},{"name":"vegetable broth","quantity":"1L"}],
-    "steps": ["Cook onions and mushrooms","Add rice and broth","Stir until creamy","Add cheese"]
+    "title": "Vegetable Stir-Fry",
+    "description": "A quick and healthy stir-fry with a mix of fresh vegetables.",
+    "time": "25 minutes",
+    "ingredients": "[{\"name\":\"broccoli\",\"quantity\":\"100g\"},{\"name\":\"carrot\",\"quantity\":\"1\"},{\"name\":\"bell pepper\",\"quantity\":\"1\"},{\"name\":\"soy sauce\",\"quantity\":\"2 tbsp\"},{\"name\":\"garlic\",\"quantity\":\"2 cloves\"},{\"name\":\"ginger\",\"quantity\":\"1 inch\"}]",
+    "steps": "[\"Chop vegetables\",\"Sauté garlic and ginger\",\"Add vegetables\",\"Stir in soy sauce\"]"
   },
   {
     "userId": 6,
-    "title": "Fish Tacos",
-    "description": "Tasty fish tacos with a tangy slaw.",
-    "time": "25 minutes",
-    "ingredients": [{"name":"fish","quantity":"500g"},{"name":"tortillas","quantity":"8"},{"name":"cabbage","quantity":"1/2 head"},{"name":"lime","quantity":"2"},{"name":"sour cream","quantity":"200ml"}],
-    "steps": ["Cook fish","Prepare slaw","Assemble tacos","Serve with lime wedges"]
-  },
-  {
-    "userId": 7,
-    "title": "Pancakes",
-    "description": "Fluffy pancakes perfect for breakfast.",
-    "time": "15 minutes",
-    "ingredients": [{"name":"flour","quantity":"200g"},{"name":"milk","quantity":"300ml"},{"name":"eggs","quantity":"2"},{"name":"baking powder","quantity":"2 tsp"},{"name":"sugar","quantity":"2 tbsp"}],
-    "steps": ["Mix dry ingredients","Add wet ingredients","Cook on griddle","Serve with syrup"]
-  },
-  {
-    "userId": 8,
-    "title": "Greek Salad",
-    "description": "A fresh and healthy Greek salad.",
-    "time": "10 minutes",
-    "ingredients": [{"name":"tomatoes","quantity":"4"},{"name":"cucumbers","quantity":"2"},{"name":"feta cheese","quantity":"100g"},{"name":"olives","quantity":"50g"},{"name":"olive oil","quantity":"3 tbsp"}],
-    "steps": ["Chop vegetables","Add cheese and olives","Drizzle with olive oil","Toss and serve"]
-  },
-  {
-    "userId": 9,
-    "title": "Lentil Soup",
-    "description": "A hearty lentil soup packed with vegetables.",
-    "time": "50 minutes",
-    "ingredients": [{"name":"lentils","quantity":"300g"},{"name":"carrots","quantity":"2"},{"name":"celery","quantity":"2"},{"name":"onions","quantity":"1"},{"name":"vegetable broth","quantity":"1L"}],
-    "steps": ["Cook vegetables","Add lentils and broth","Simmer until lentils are tender"]
-  },
-  {
-    "userId": 10,
-    "title": "Apple Pie",
-    "description": "A classic apple pie with a flaky crust.",
-    "time": "1.5 hours",
-    "ingredients": [{"name":"apples","quantity":"6"},{"name":"flour","quantity":"250g"},{"name":"sugar","quantity":"100g"},{"name":"butter","quantity":"200g"},{"name":"cinnamon","quantity":"2 tsp"}],
-    "steps": ["Prepare crust","Mix apple filling","Assemble pie","Bake until golden"]
+    "title": "Chocolate Chip Cookies",
+    "description": "Classic cookies filled with chocolate chips.",
+    "time": "20 minutes",
+    "ingredients": "[{\"name\":\"butter\",\"quantity\":\"100g\"},{\"name\":\"sugar\",\"quantity\":\"100g\"},{\"name\":\"brown sugar\",\"quantity\":\"50g\"},{\"name\":\"egg\",\"quantity\":\"1\"},{\"name\":\"flour\",\"quantity\":\"150g\"},{\"name\":\"chocolate chips\",\"quantity\":\"100g\"},{\"name\":\"vanilla extract\",\"quantity\":\"1 tsp\"},{\"name\":\"baking soda\",\"quantity\":\"1/2 tsp\"},{\"name\":\"salt\",\"quantity\":\"1/4 tsp\"}]",
+    "steps": "[\"Cream butter and sugars\",\"Add egg and vanilla\",\"Mix in dry ingredients\",\"Fold in chocolate chips\",\"Bake\"]"
   }
 ]
