@@ -15,12 +15,21 @@ config:
       rampTo: 60
   ensure:
     maxErrorRate: 1
+  payload:
+    path: 'mock_data.csv'
+    fields:
+      - 'userId'
+      - 'title'
+      - 'description'
+      - 'time'
+      - 'ingredients'
+      - 'steps'
 
 scenarios:
   - name: "Create new recipe & get recipes"
     flow:
       - post:
-          url: "/recipes/{userId}/operations/create"
+          url: "/recipes/{{ userId }}/operations/create"
           formData:
             title: "{{ title }}"
             description: "{{ description }}"
@@ -32,5 +41,3 @@ scenarios:
               as: "recipeid"
       - get:
           url: "/recipes-api/view/{{ recipeid }}"
-    data:
-      file: "mock_data.json"
