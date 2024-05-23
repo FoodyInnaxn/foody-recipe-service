@@ -49,4 +49,4 @@ jobs:
     needs: redeploy
     steps:
     - name: Load Test
-      run: npm artillery run loadtests/tests.yml --record --key ${{ secrets.ARTILLERY }}
+      run: artillery run ./loadtests/tests.yml --record --key ${{ secrets.ARTILLERY }}
