@@ -1,5 +1,6 @@
 config:
-  target: "recipe-service.default.svc.cluster.local"
+  target: http://recipe-service:8081
+#  "recipe-service.default.svc.cluster.local"
   phases:
     - name: "Warm up service"
       duration: 90
