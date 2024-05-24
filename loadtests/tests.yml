@@ -1,5 +1,7 @@
 config:
-  target: 10.1.243.203:8081
+  target: "recipe-service.default.svc.cluster.local"
+#  10.1.243.203:8081
+#  http://discovery-service:8761/eureka
 #  "recipe-service.default.svc.cluster.local"
   phases:
     - name: "Warm up service"
