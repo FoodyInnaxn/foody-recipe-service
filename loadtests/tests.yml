@@ -1,5 +1,5 @@
 config:
-  target: "recipe-service.default.svc.cluster.local"
+  target: "recipe-service.default.svc.cluster.local:8081"
 #  10.1.243.203:8081
 #  http://discovery-service:8761/eureka
 #  "recipe-service.default.svc.cluster.local"
