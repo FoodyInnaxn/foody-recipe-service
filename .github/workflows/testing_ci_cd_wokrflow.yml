@@ -24,7 +24,7 @@ jobs:
             QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
   build:
     runs-on: ubuntu-latest
-    # needs: qodana
+    needs: qodana
     steps:
       - uses: actions/checkout@v4
       - name: Docker Login
@@ -45,7 +45,7 @@ jobs:
           # Push is a shorthand for --output=type=registry
           push: true
           # List of tags
-          tags: innaxn/foody-recipe-service
+          tags: innaxn/foody-recipe-service:testing-latest
   redeploy:
       runs-on: self-hosted
       needs: build
