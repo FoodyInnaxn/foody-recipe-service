@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 public class RecipeResponse {
     private Long id;
+    private Long userId;
     private String title;
     private String description;
     private String time;

@@ -1,0 +1,46 @@
+config:
+  target: "recipe-service.default.svc.cluster.local"
+#  10.1.243.203:8081
+#  http://discovery-service:8761/eureka
+#  "recipe-service.default.svc.cluster.local"
+  phases:
+    - name: "Warm up service"
+      duration: 90
+      arrivalRate: 10
+      rampTo: 20
+    - name: "Ramp up high load"
+      duration: 210
+      arrivalRate: 20
+      rampTo: 40
+    - name: "Sustained high load"
+      duration: 300
+      arrivalRate: 40
+      rampTo: 60
+  ensure:
+    maxErrorRate: 1
+  payload:
+    path: 'mock_data.csv'
+    fields:
+      - 'userId'
+      - 'title'
+      - 'description'
+      - 'time'
+      - 'ingredients'
+      - 'steps'
+
+scenarios:
+  - name: "Create new recipe & get recipes"
+    flow:
+      - post:
+          url: "/recipe/{{ userId }}/operations/create"
+          formData:
+            title: "{{ title }}"
+            description: "{{ description }}"
+            time: "{{ time }}"
+            steps: "{{ steps }}"
+            ingredients: "{{ ingredients }}"
+          capture:
+            - json: "$.id"
+              as: "recipeid"
+      - get:
+          url: "/recipe/view/{{ recipeid }}"
