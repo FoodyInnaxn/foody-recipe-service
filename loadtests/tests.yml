@@ -1,5 +1,5 @@
 config:
-  target: http://10.1.243.201:8081
+  target: http://10.152.183.110:8081
   phases:
     - name: "Warm up service"
       duration: 90
