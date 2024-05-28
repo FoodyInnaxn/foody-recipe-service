@@ -1,20 +1,17 @@
 config:
   target: http://10.1.243.201:8081
-#  10.1.243.203:8081
-#  http://discovery-service:8761/eureka
-#  "recipe-service.default.svc.cluster.local"
   phases:
     - name: "Warm up service"
       duration: 90
-      arrivalRate: 10
+      arrivalRate: 1.5  # Adjusted arrival rate for 3/2 requests/second
       rampTo: 20
     - name: "Ramp up high load"
       duration: 210
-      arrivalRate: 20
+      arrivalRate: 3.5  # Adjusted arrival rate for 7/2 requests/second
       rampTo: 40
     - name: "Sustained high load"
       duration: 300
-      arrivalRate: 40
+      arrivalRate: 5  # Maintained at 5 requests/second
       rampTo: 60
   ensure:
     maxErrorRate: 1
