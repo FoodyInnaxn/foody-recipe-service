@@ -38,6 +38,7 @@ scenarios:
             ingredients: "{{ ingredients }}"
           capture:
             - json: "$.id"
-              as: "recipeid"
+              as: "id"
+      - think: 5
       - get:
-          url: "/recipe/view/{{ recipeid }}"
+          url: "/recipe/view/{{ id }}"
