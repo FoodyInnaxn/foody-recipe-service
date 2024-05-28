@@ -4,15 +4,15 @@ config:
     - name: "Warm up service"
       duration: 90
       arrivalRate: 0.5  # Reduced arrival rate for 0.5 requests/second
-      rampTo: 10
+      rampTo: 1       # Ramp up to 1 request/second
     - name: "Ramp up high load"
       duration: 210
       arrivalRate: 1  # Reduced arrival rate for 1 request/second
-      rampTo: 20
+      rampTo: 2       # Ramp up to 2 requests/second
     - name: "Sustained high load"
       duration: 300
       arrivalRate: 2  # Reduced arrival rate for 2 requests/second
-      rampTo: 30
+      rampTo: 3       # Ramp up to 3 requests/second
   ensure:
     maxErrorRate: 1
   payload:
@@ -36,8 +36,12 @@ scenarios:
             time: "{{ time }}"
             steps: "{{ steps }}"
             ingredients: "{{ ingredients }}"
+          afterResponse: 
+            - log: "POST response: {{ responseBody }}"
           capture:
             - json: "$.id"
               as: "recipeid"
       - get:
           url: "/recipe/view/{{ recipeid }}"
+          afterResponse: 
+            - log: "GET response: {{ responseBody }}"
