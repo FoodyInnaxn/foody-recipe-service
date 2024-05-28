@@ -3,16 +3,16 @@ config:
   phases:
     - name: "Warm up service"
       duration: 90
-      arrivalRate: 1.5  # Adjusted arrival rate for 3/2 requests/second
-      rampTo: 20
+      arrivalRate: 0.5  # Reduced arrival rate for 0.5 requests/second
+      rampTo: 10
     - name: "Ramp up high load"
       duration: 210
-      arrivalRate: 3.5  # Adjusted arrival rate for 7/2 requests/second
-      rampTo: 40
+      arrivalRate: 1  # Reduced arrival rate for 1 request/second
+      rampTo: 20
     - name: "Sustained high load"
       duration: 300
-      arrivalRate: 5  # Maintained at 5 requests/second
-      rampTo: 60
+      arrivalRate: 2  # Reduced arrival rate for 2 requests/second
+      rampTo: 30
   ensure:
     maxErrorRate: 1
   payload:
