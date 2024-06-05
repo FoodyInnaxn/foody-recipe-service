@@ -16,22 +16,24 @@ spec:
   selector:
     io.kompose.service: recipe-service
   type: ClusterIP
+
 ---
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: recipe-hpa
+  name: recipe-service-autoscaler
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: recipe
-  minReplicas: 1
+    name: recipe-service
+  minReplicas: 2
   maxReplicas: 5
   metrics:
-    - type: Resource
-      resource:
-        name: cpu
+    - type: Pods
+      pods:
+        metric:
+          name: recipe_rps
         target:
-          type: Utilization
-          averageUtilization: 50
+          type: AverageValue
+          averageValue: 4
