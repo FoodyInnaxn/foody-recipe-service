@@ -24,6 +24,7 @@ config:
       - 'time'
       - 'ingredients'
       - 'steps'
+    skipHeader: true
 
 scenarios:
   - name: "Create new recipe & get recipes"
