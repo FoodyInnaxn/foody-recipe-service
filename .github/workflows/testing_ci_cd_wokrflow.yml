@@ -59,9 +59,9 @@ jobs:
         uses: juliangruber/sleep-action@v2.0.3
         with:
           time: 2m
-  # load-test:
-  #   runs-on: self-hosted
-  #   needs: redeploy
-  #   steps:
-  #   - name: Load Test
-  #     run: artillery run ./loadtests/tests.yml --record --key ${{ secrets.ARTILLERY_KEY }}
+  load-test:
+    runs-on: self-hosted
+    needs: redeploy
+    steps:
+    - name: Load Test
+      run: artillery run ./loadtests/tests.yml --record --key ${{ secrets.ARTILLERY_KEY }}
