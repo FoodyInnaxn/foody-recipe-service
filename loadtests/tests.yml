@@ -41,4 +41,4 @@ scenarios:
             - json: "$.id"
               as: "id"
       - get:
-          url: "/recipe/view/{{ id }}"
+          url: "/recipe/view/5"
