@@ -30,7 +30,7 @@ scenarios:
   - name: "Create new recipe & get recipes"
     flow:
       - post:
-          url: "/recipe/{{ userId }}/operations/create"
+          url: "/recipe/1/operations/create"
           formData:
             title: "{{ title }}"
             description: "{{ description }}"
@@ -41,4 +41,4 @@ scenarios:
             - json: "$.id"
               as: "id"
       - get:
-          url: "/recipe/view/{{ id }}"
+          url: "/recipe/view"
