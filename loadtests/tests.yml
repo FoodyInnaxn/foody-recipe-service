@@ -1,5 +1,5 @@
 config:
-  target: http://10.152.183.110:8081
+  target: http://10.152.183.32:8081
   phases:
     - name: "Warm up service"
       duration: 90
@@ -40,6 +40,5 @@ scenarios:
           capture:
             - json: "$.id"
               as: "id"
-      - think: 5
       - get:
           url: "/recipe/view/{{ id }}"
