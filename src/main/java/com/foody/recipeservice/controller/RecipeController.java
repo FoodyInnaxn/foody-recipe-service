@@ -114,7 +114,7 @@ public class RecipeController {
         }
     }
 
-    @PutMapping("/{recipeId}/rating")
+    @PutMapping("/view/{recipeId}/rating")
     public ResponseEntity<Void> updateRecipeRating(@PathVariable Long recipeId, @RequestParam double rating) {
         try {
             recipeService.updateRecipeRating(recipeId, rating);
