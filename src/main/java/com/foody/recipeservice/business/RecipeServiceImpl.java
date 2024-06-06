@@ -39,6 +39,7 @@ public class RecipeServiceImpl implements RecipeService {
         recipeEntity.setTitle(request.getTitle());
         recipeEntity.setDescription(request.getDescription());
         recipeEntity.setNumberSaved(0);
+        recipeEntity.setRating(0);
         recipeEntity.setTime(request.getTime());
         List<IngredientEntity> ingredients = request.getIngredients().stream()
                 .map(ingredientRequest -> {
@@ -92,6 +93,7 @@ public class RecipeServiceImpl implements RecipeService {
             response.setTime(recipeEntity.getTime());
             response.setDescription(recipeEntity.getDescription());
             response.setNumberSaved(recipeEntity.getNumberSaved());
+            response.setRating(recipeEntity.getRating());
             response.setImgUrls(recipeEntity.getImgUrls());
             List<IngredientRequest> ingredientRequests = recipeEntity.getIngredients().stream()
                     .map(ingredientEntity -> new IngredientRequest(ingredientEntity.getName(), ingredientEntity.getQuantity()))
@@ -149,6 +151,7 @@ public class RecipeServiceImpl implements RecipeService {
         response.setTime(recipeEntity.getTime());
         response.setUserId(recipeEntity.getUserId());
         response.setNumberSaved(recipeEntity.getNumberSaved());
+        response.setRating(recipeEntity.getRating());
         response.setImgUrls(recipeEntity.getImgUrls());
         List<IngredientRequest> ingredientRequests = recipeEntity.getIngredients().stream()
                 .map(ingredientEntity -> new IngredientRequest(ingredientEntity.getName(), ingredientEntity.getQuantity()))
@@ -234,6 +237,18 @@ public class RecipeServiceImpl implements RecipeService {
         this.recipeRepository.deleteById(id);
         eventPublisher.publishDelete(id);
         System.out.println("hey delete recipe" + id);
+    }
+
+    @Override
+    public void updateRecipeRating(Long recipeId, double rating) {
+        Optional<RecipeEntity> recipeOptional = recipeRepository.findById(recipeId);
+        if (recipeOptional.isPresent()) {
+            RecipeEntity recipe = recipeOptional.get();
+            recipe.setRating(rating);
+            recipeRepository.save(recipe);
+        } else {
+            throw new RecipeNotFoundException();
+        }
     }
 
     @Override

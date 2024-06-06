@@ -16,6 +16,7 @@ public interface RecipeService {
     RecipesResponse getRecipesByUserId(Long id, int page, int size);
     void updateRecipe(Long id, RecipeRequest request);
     void deleteRecipe(Long id);
+    void updateRecipeRating(Long recipeId, double rating);
     void handleImages(ImageEvent imageEvent);
     void receiveSavedRecipeEvent(SavedRecipeCreatedEvent savedRecipeCreatedEvent);
 }

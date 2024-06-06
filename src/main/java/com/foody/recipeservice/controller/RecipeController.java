@@ -6,6 +6,7 @@ import com.foody.recipeservice.domain.response.RecipeResponse;
 import com.foody.recipeservice.business.RecipeService;
 import com.foody.recipeservice.business.exceptions.RecipeNotFoundException;
 import com.foody.recipeservice.domain.response.RecipesResponse;
+import com.foody.recipeservice.persistence.entity.RecipeEntity;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/recipe")
@@ -99,5 +101,26 @@ public class RecipeController {
                                                        @PathVariable("recipeId") Long recipeId){
         recipeService.deleteRecipe(recipeId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{recipeId}/rating")
+    public ResponseEntity<Double> getRecipeRating(@PathVariable Long recipeId) {
+        try {
+            RecipeResponse recipeResponse = recipeService.getRecipeById(recipeId);
+            double rating = recipeResponse.getRating();
+            return ResponseEntity.ok(rating);
+        } catch (RecipeNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/{recipeId}/rating")
+    public ResponseEntity<Void> updateRecipeRating(@PathVariable Long recipeId, @RequestParam double rating) {
+        try {
+            recipeService.updateRecipeRating(recipeId, rating);
+            return ResponseEntity.noContent().build();
+        } catch (RecipeNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

@@ -16,6 +16,7 @@ public class RecipeResponse {
     private String description;
     private String time;
     private Integer numberSaved;
+    private double rating;
     private List<String> imgUrls;
     private List<IngredientRequest> ingredients;
     private List<String> steps;

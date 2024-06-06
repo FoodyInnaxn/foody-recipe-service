@@ -18,6 +18,7 @@ public class RecipeEntity {
     private String description;
     private String time;
     private Integer numberSaved;
+    private double rating;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "recipe_img_urls", joinColumns = @JoinColumn(name = "recipe_id"))
