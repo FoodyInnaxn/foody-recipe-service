@@ -7,13 +7,13 @@ import com.foody.recipeservice.domain.response.CreateRecipeResponse;
 import com.foody.recipeservice.domain.response.RecipeResponse;
 import com.foody.recipeservice.domain.response.RecipesResponse;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.List;
 
 public interface RecipeService {
-    CompletableFuture<CreateRecipeResponse> createRecipe(RecipeRequest request);
-    CompletableFuture<RecipeResponse> getRecipeById(Long id);
-    CompletableFuture<RecipesResponse> getRecipes(int page, int size);
-    CompletableFuture<RecipesResponse> getRecipesByUserId(Long id, int page, int size);
+    CreateRecipeResponse createRecipe(RecipeRequest request);
+    RecipeResponse getRecipeById(Long id);
+    RecipesResponse getRecipes(int page, int size);
+    RecipesResponse getRecipesByUserId(Long id, int page, int size);
     void updateRecipe(Long id, RecipeRequest request);
     void deleteRecipe(Long id);
     void updateRecipeRating(Long recipeId, double rating);
