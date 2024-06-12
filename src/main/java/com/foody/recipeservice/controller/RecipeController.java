@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/recipe")
@@ -30,11 +31,11 @@ public class RecipeController {
 
     @PostMapping(value = "/{id}/operations/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public CreateRecipeResponse createRecipe(@PathVariable("id") Long userId, @RequestPart(value = "title") String title, @RequestPart(value = "description") String description,
-                                             @RequestPart(value = "time") String time,
-                                             @RequestPart(value = "steps") String steps,
-                                             @RequestPart(value = "ingredients") String ingredientRequest,
-                                             @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles
+    public CompletableFuture<CreateRecipeResponse> createRecipe(@PathVariable("id") Long userId, @RequestPart(value = "title") String title, @RequestPart(value = "description") String description,
+                                                                @RequestPart(value = "time") String time,
+                                                                @RequestPart(value = "steps") String steps,
+                                                                @RequestPart(value = "ingredients") String ingredientRequest,
+                                                                @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles
                                              ) {
         Gson gson = new Gson();
         List<String> stepList = gson.fromJson(steps, List.class);
@@ -51,28 +52,58 @@ public class RecipeController {
     }
 
     @GetMapping("/view/{id}")
-    public RecipeResponse getRecipeById(@PathVariable Long id) {
+    public CompletableFuture<RecipeResponse> getRecipeById(@PathVariable Long id) {
         return recipeService.getRecipeById(id);
     }
     @GetMapping("/view")
-    public RecipesResponse getRecipes(@RequestParam(defaultValue = "0") int page,
+    public CompletableFuture<RecipesResponse> getRecipes(@RequestParam(defaultValue = "0") int page,
                                       @RequestParam(defaultValue = "10") int size) {
-        RecipesResponse recipeResponses = recipeService.getRecipes(page, size);
-        if (recipeResponses.getRecipes().isEmpty()) {
-            throw new RecipeNotFoundException();
-        }
-        return recipeResponses;
+//        CompletableFuture<RecipesResponse> recipeResponses = recipeService.getRecipes(page, size);
+////        if (recipeResponses.getRecipes().isEmpty()) {
+////            throw new RecipeNotFoundException();
+////        }
+////        return recipeResponses;
+
+        return recipeService.getRecipes(page, size)
+                .thenApply(recipeResponses -> {
+                    if (recipeResponses.getRecipes().isEmpty()) {
+                        throw new RecipeNotFoundException();
+                    }
+                    return recipeResponses;
+                })
+                .exceptionally(ex -> {
+                    // Handle exception and return appropriate response or rethrow
+                    if (ex.getCause() instanceof RecipeNotFoundException) {
+                        throw (RecipeNotFoundException) ex.getCause();
+                    }
+                    throw new RuntimeException(ex);
+                });
     }
 
     @GetMapping("/{id}/operations")
-    public RecipesResponse getRecipes(@PathVariable Long id, @RequestParam(defaultValue = "0") int page,
+    public CompletableFuture<RecipesResponse> getRecipes(@PathVariable Long id, @RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "5") int size) {
-        RecipesResponse recipeResponses = recipeService.getRecipesByUserId(id, page, size);
-        if (recipeResponses.getRecipes().isEmpty()) {
-            throw new RecipeNotFoundException();
-        }
-        return recipeResponses;
+        return recipeService.getRecipesByUserId(id, page, size)
+                .thenApply(recipeResponses -> {
+                    if (recipeResponses.getRecipes().isEmpty()) {
+                        throw new RecipeNotFoundException();
+                    }
+                    return recipeResponses;
+                })
+                .exceptionally(ex -> {
+                    // Handle exception and return appropriate response or rethrow
+                    if (ex.getCause() instanceof RecipeNotFoundException) {
+                        throw (RecipeNotFoundException) ex.getCause();
+                    }
+                    throw new RuntimeException(ex);
+                });
     }
+//        RecipesResponse recipeResponses = recipeService.getRecipesByUserId(id, page, size);
+//        if (recipeResponses.getRecipes().isEmpty()) {
+//            throw new RecipeNotFoundException();
+//        }
+//        return recipeResponses;
+//    }
 
     @PutMapping("/{id}/operations/update/{recipeId}")
     public ResponseEntity<Void> updateRecipe(@PathVariable("id") Long userId,
@@ -104,14 +135,27 @@ public class RecipeController {
     }
 
     @GetMapping("/{recipeId}/rating")
-    public ResponseEntity<Double> getRecipeRating(@PathVariable Long recipeId) {
-        try {
-            RecipeResponse recipeResponse = recipeService.getRecipeById(recipeId);
-            double rating = recipeResponse.getRating();
-            return ResponseEntity.ok(rating);
-        } catch (RecipeNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+//    public ResponseEntity<Double> getRecipeRating(@PathVariable Long recipeId) {
+//        try {
+//            RecipeResponse recipeResponse = recipeService.getRecipeById(recipeId);
+//            double rating = recipeResponse.getRating();
+//            return ResponseEntity.ok(rating);
+//        } catch (RecipeNotFoundException e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+    public CompletableFuture<ResponseEntity<Double>> getRecipeRating(@PathVariable Long recipeId) {
+        return recipeService.getRecipeById(recipeId)
+                .thenApply(recipeResponse -> {
+                    double rating = recipeResponse.getRating();
+                    return ResponseEntity.ok(rating);
+                })
+                .exceptionally(ex -> {
+                    if (ex.getCause() instanceof RecipeNotFoundException) {
+                        return ResponseEntity.notFound().build();
+                    }
+                    throw new RuntimeException(ex);
+                });
     }
 
     @PutMapping("/{recipeId}/rating")
