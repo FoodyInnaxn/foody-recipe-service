@@ -2,17 +2,17 @@ config:
   target: http://10.152.183.89:8081
   phases:
     - name: "Warm up service"
-      duration: 90
-      arrivalRate: 10
-      rampTo: 30
+      duration: 15
+      arrivalRate: 5
+      rampTo: 20
     - name: "Ramp up high load"
-      duration: 210
-      arrivalRate: 30
-      rampTo: 50
+      duration: 100
+      arrivalRate: 20
+      rampTo: 30
     - name: "Sustained high load"
       duration: 300
-      arrivalRate: 50
-      rampTo: 100
+      arrivalRate: 30
+      rampTo: 40
   ensure:
     maxErrorRate: 1
   payload:
