@@ -17,12 +17,14 @@ import com.foody.recipeservice.persistence.entity.RecipeEntity;
 import com.foody.recipeservice.business.exceptions.RecipeNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -33,7 +35,8 @@ public class RecipeServiceImpl implements RecipeService {
     private final RecipeEventPublisher eventPublisher;
 
     @Override
-    public CreateRecipeResponse createRecipe(RecipeRequest request) {
+    @Async
+    public CompletableFuture<CreateRecipeResponse> createRecipe(RecipeRequest request) {
         RecipeEntity recipeEntity = new RecipeEntity();
         recipeEntity.setUserId(request.getUserId());
         recipeEntity.setTitle(request.getTitle());
@@ -75,14 +78,15 @@ public class RecipeServiceImpl implements RecipeService {
         System.out.println("hey sending to search " + searchEvent);
 
 
-        return CreateRecipeResponse.builder()
+        return CompletableFuture.completedFuture(CreateRecipeResponse.builder()
                 .id(savedRecipe.getId())
-                .build();
+                .build());
     }
 
 
     @Override
-    public RecipeResponse getRecipeById(Long id) {
+    @Async
+    public CompletableFuture<RecipeResponse> getRecipeById(Long id) {
         Optional<RecipeEntity> recipeOptional = recipeRepository.findById(id);
         if (recipeOptional.isPresent()) {
             RecipeEntity recipeEntity = recipeOptional.get();
@@ -100,7 +104,7 @@ public class RecipeServiceImpl implements RecipeService {
                     .collect(Collectors.toList());
             response.setIngredients(ingredientRequests);
             response.setSteps(recipeEntity.getSteps());
-            return response;
+            return CompletableFuture.completedFuture(response);
 
         } else {
             throw new RecipeNotFoundException();
@@ -108,7 +112,8 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
-    public RecipesResponse getRecipes(int page, int size) {
+    @Async
+    public CompletableFuture<RecipesResponse> getRecipes(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<RecipeEntity> recipePage = recipeRepository.findAll(pageable);
 
@@ -120,11 +125,12 @@ public class RecipeServiceImpl implements RecipeService {
             throw new RecipeNotFoundException();
         }
 
-        return new RecipesResponse(recipeResponses, recipePage.getTotalPages());
+        return CompletableFuture.completedFuture(new RecipesResponse(recipeResponses, recipePage.getTotalPages()));
     }
 
     @Override
-    public RecipesResponse getRecipesByUserId(Long id, int page, int size){
+    @Async
+    public CompletableFuture<RecipesResponse> getRecipesByUserId(Long id, int page, int size){
         Pageable pageable = PageRequest.of(page, size);
         Page<RecipeEntity> recipePage = recipeRepository.findByUserId(id, pageable);
 
@@ -140,7 +146,7 @@ public class RecipeServiceImpl implements RecipeService {
             throw new RecipeNotFoundException();
         }
 
-        return new RecipesResponse(recipeResponses, recipePage.getTotalPages());
+        return CompletableFuture.completedFuture(new RecipesResponse(recipeResponses, recipePage.getTotalPages()));
     }
 
     private RecipeResponse mapToRecipeResponse(RecipeEntity recipeEntity) {
@@ -162,6 +168,7 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
+    @Async
     public void updateRecipe(Long id, RecipeRequest request) {
         RecipeEntity recipeEntity = recipeRepository.findById(id)
                 .orElseThrow(() -> new RecipeNotFoundException());
@@ -233,6 +240,7 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
+    @Async
     public void deleteRecipe(Long id) {
         this.recipeRepository.deleteById(id);
         eventPublisher.publishDelete(id);
@@ -240,6 +248,7 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
+    @Async
     public void updateRecipeRating(Long recipeId, double rating) {
         Optional<RecipeEntity> recipeOptional = recipeRepository.findById(recipeId);
         if (recipeOptional.isPresent()) {
@@ -253,6 +262,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     @RabbitListener(queues = RabbitMQConfig.IMG_QUEUE)
+    @Async
     public void handleImages(ImageEvent imageEvent) {
         RecipeEntity recipeEntity = recipeRepository.findById(imageEvent.getRecipeId())
                 .orElseThrow(() -> new RecipeNotFoundException());
@@ -271,6 +281,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     @RabbitListener(queues = RabbitMQConfig.SAVED_RECIPE_QUEUE)
+    @Async
     public void receiveSavedRecipeEvent(SavedRecipeCreatedEvent savedRecipeCreatedEvent) {
         Optional<RecipeEntity> recipeOptional = recipeRepository.findById(savedRecipeCreatedEvent.getRecipeId());
         if (recipeOptional.isEmpty()) {
