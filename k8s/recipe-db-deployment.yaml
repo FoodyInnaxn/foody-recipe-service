@@ -71,3 +71,17 @@ spec:
     - port: 5432
   selector:
     app: recipe-db
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: recipe-volume-claim
+  labels:
+    app: recipe-volume-claim
+spec:
+  storageClassName: microk8s-hostpath
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
