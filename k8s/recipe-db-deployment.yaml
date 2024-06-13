@@ -1,4 +1,65 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-secret
+  labels:
+    app: recipedata
+data:
+  POSTGRES_DB: "recipe-db"
+  POSTGRES_PASSWORD: "admin"
+  POSTGRES_USER: "admin"
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: recipedata
+  labels:
+    app: recipedata
+spec:
+  serviceName: "postgres"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: recipedata
+  template:
+    metadata:
+      labels:
+        app: recipedata
+    spec:
+      containers:
+        - name: recipe-db
+          image: postgres:latest
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: postgres-secret
+          volumeMounts:
+            - name: recipedata
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: recipedata
+          persistentVolumeClaim:
+            claimName: recipe-volume-claim
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: recipedata
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  clusterIP: None  # Headless service
+  selector:
+    app: recipedata
+
+---
+apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: recipedata
@@ -13,64 +74,6 @@ spec:
     - ReadWriteMany
   hostPath:
     path: /data/postgresql
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: postgres-secret
-  labels:
-    app: recipedata
-data:
-  POSTGRES_DB: "recipe-db"
-  POSTGRES_PASSWORD: "admin"
-  POSTGRES_USER: "admin"
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: recipedata
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: recipedata
-  template:
-    metadata:
-      labels:
-        app: recipedata
-    spec:
-      containers:
-        - name: recipe-db
-          image: postgres:latest
-          imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 5432
-          envFrom:
-            - configMapRef:
-                name: postgres-secret
-          volumeMounts:
-            - mountPath: /var/lib/postgresql/data
-              name: recipedata
-      volumes:
-        - name: recipedata
-          persistentVolumeClaim:
-            claimName: recipe-volume-claim
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: recipe-db
-  labels:
-    app: recipedata
-spec:
-  type: ClusterIP
-  ports:
-    - port: 5432
-  selector:
-    app: recipedata
 
 ---
 apiVersion: v1
