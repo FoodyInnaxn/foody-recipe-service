@@ -1,43 +1,73 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: recipedata
+  labels:
+    type: local
+    app: recipedata
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /data/postgresql
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-secret
+  labels:
+    app: recipedata
+data:
+  POSTGRES_DB: "recipe-db"
+  POSTGRES_PASSWORD: "admin"
+  POSTGRES_USER: "admin"
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert -f docker-compose.yml
-    kompose.version: 1.31.2 (a92241f79)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: recipe-db
-  name: recipe-db
+  name: recipedata
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
-      io.kompose.service: recipe-db
-  strategy: {}
+      app: recipedata
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert -f docker-compose.yml
-        kompose.version: 1.31.2 (a92241f79)
-      creationTimestamp: null
       labels:
-        io.kompose.network/foody-default: "true"
-        io.kompose.service: recipe-db
+        app: recipedata
     spec:
       containers:
-        - env:
-            - name: POSTGRES_DB
-              value: recipe-db
-            - name: POSTGRES_PASSWORD
-              value: admin
-            - name: POSTGRES_USER
-              value: admin
+        - name: recipe-db
           image: postgres:latest
-          name: recipe-db
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5432
-              hostPort: 5432
-              protocol: TCP
-          resources: {}
-      restartPolicy: Always
-status: {}
+          envFrom:
+            - configMapRef:
+                name: postgres-secret
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: recipedata
+      volumes:
+        - name: recipedata
+          persistentVolumeClaim:
+            claimName: recipe-volume-claim
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recipe-db
+  labels:
+    app: recipe-db
+spec:
+  type: NodePort
+  ports:
+    - port: 5432
+  selector:
+    app: recipe-db
