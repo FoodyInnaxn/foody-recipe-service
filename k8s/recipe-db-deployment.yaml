@@ -17,7 +17,7 @@ metadata:
   labels:
     app: recipedata
 spec:
-  serviceName: "postgres"
+  serviceName: "recipe-db"
   replicas: 3
   selector:
     matchLabels:
@@ -47,7 +47,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres
+  name: recipe-db
   labels:
     app: recipedata
 spec:
